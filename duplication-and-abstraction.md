@@ -307,7 +307,7 @@ However, I still think the examples give a good insight in to the sensitivity to
 
 I have also noticed this kind of coupling in my own code when I've been moving shared behaviour up to a base class (almost always a bad idea!).  More than once I've noticed I've moved code shared between two controllers to a base controller class but the code I moved shared very little in common conceptually and yet I've coupled them together inside my new abstraction, the base controller class.
 
-This kind of sensitivity to the concepts in the code, and the level of abstraction they are is also critical when extracting methods in the same way as it is when extracting classes.  Methods are also an abstraction.  Even if the extracted methods don't get moved to classes of their own, it is still important that the method itself is meaningful on its own. 
+This kind of sensitivity to the concepts in the code, and the level of abstraction they are is also critical when extracting methods in the same way as it is when extracting classes.  Methods are also an abstraction.  Even if the extracted methods don't get moved to classes of their own, it is still important that the method itself is meaningful on its own.
 
 To do
 ---
@@ -315,7 +315,7 @@ To do
 * It looks as though Code Complete might have something to say on the matter.  I've never read it, and we've got a copy!
 * Perhaps I need to research what an abstraction is.
 
-[A Long Look Down the Road (paywall)]: http://online-training.jbrains.ca/courses/wbitdd-01/lectures/140743 "A Long Look Down the Road (paywall)"
-[The World's Best Intro to TDD]: http://www.jbrains.ca/training/the-worlds-best-introduction-to-test-driven-development/ "The World's Best Intro to TDD"
-[97 Things Every Programmer Should Know]: http://programmer.97things.oreilly.com/wiki/index.php/Contributions_Appearing_in_the_Book "97 Things Every Programmer Should Know"
-[The Single Responsibility Principle]: https://8thlight.com/blog/uncle-bob/2014/05/08/SingleReponsibilityPrinciple.html "The Single Responsibility Principle"
+[A Long Look Down the Road (paywall)]: http://online-training.jbrains.ca/courses/wbitdd-01/lectures/140743
+[The World's Best Intro to TDD]: http://www.jbrains.ca/training/the-worlds-best-introduction-to-test-driven-development/
+[97 Things Every Programmer Should Know]: http://programmer.97things.oreilly.com/wiki/index.php/Contributions_Appearing_in_the_Book
+[The Single Responsibility Principle]: https://8thlight.com/blog/uncle-bob/2014/05/08/SingleReponsibilityPrinciple.html

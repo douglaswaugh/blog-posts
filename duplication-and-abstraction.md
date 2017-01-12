@@ -13,7 +13,7 @@ What I want to draw attention to is the link between abstractions and duplicatio
 
 > The developer who learns to recognize duplication, and understands how to eliminate it through appropriate practice and proper abstraction, can produce much cleaner code than one who continuously infects the application with unnecessary repetition.
 
-Removing abstraction through appropriate practice and proper abstraction.  It's this link between duplication and abstraction which I think holds the key to improving our designs.  One way our designs can improve is by replacing duplication with appropriate abstractions.
+Removing abstraction through appropriate practice  and proper abstraction.  It's this link between duplication and abstraction which I think holds the key to improving our designs.  One way our designs can improve is by replacing duplication with appropriate abstractions.
 
 The hardest thing about this advice is there is no process you can follow to create the perfect abstraction, it really is were the art and creativity come in to computer programming and design.  The best guidance we have available are hueristics that describe what a good abstraction might look like, and others that indicate where we might be missing an abstraction.  Repeated code is an example of the latter.  It is a signal that we might be missing an abstraction.  If we find an abstraction that enables us to remove the duplication, we can replace the duplication with that abstraction.  However, if we naively remove the duplication, we may couple concepts together and reduce the reusability of our code.
 
@@ -301,7 +301,7 @@ Conclusion
 
 Perhaps this isn't the greatest example.  Perhaps the second refactoring is better than the first given what we know about the system right now, i.e., not very much.  We don't know if we'll need a different formatter, and we don't know if we need to render to a difference device.  Perhaps this would be a good first step, until such time as we do need to format and render independently when we could refactor further.  Whether or not this was a good or a bad descision will only become apparent in due course and will depend on the changes to the system that are required.  One thing is for sure - this design has coupled the concepts of rendering and formatting together which adds an element of risk to the design.
 
-However, I still think the examples give a good insight in to the sensitivity to conceptually different things within the code that is needed by a developer to evolve the design over time.
+However, I still think the examples give a good insight in to the sensitivity to conceptually different things within the code that is needed by a developer to enable the design to emerge.
 
 I have also noticed this kind of coupling in my own code when I've been moving shared behaviour up to a base class (almost always a bad idea!).  More than once I've noticed I've moved code shared between two controllers to a base controller class but the code I moved shared very little in common conceptually and yet I've coupled them together inside my new abstraction, the base controller class.
 

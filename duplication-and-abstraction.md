@@ -1,28 +1,30 @@
 Duplication and Abstractions
 ===
 
-A lot of developers know that they shouldn't duplicate code.  It makes logical sense.  You don't want to have to maintain the same code in multiple places because if it needs to change you have to hunt through the code base trying to find it, you'll likely have to write multiple tests to cover the same piece of logic, and you may find the duplicated logic starts to deviate over time leading to different behaviours which may be bugs.
+A lot of developers know that they shouldn't duplicate code.  It makes logical sense; you don't want to have to maintain the same logic in multiple places because if it needs to change you have to hunt through the code base trying to find it, you'll likely have to write the same test multiple times, and you may find the duplicated logic starts to deviate over time leading to different behaviours which may be bugs.
 
-However I believe that developers (I suppose I'm really talking about my past me here!) can focus on removing duplication by any means necessary, which, whilst solving the problem of the code being in more than one place, doesn't always produce a pleasing design full on reusable abstractions.
+However I believe that developers (I suppose I'm really talking about past me here!) can focus on removing duplication by any means necessary, which, whilst solving the problem of the code being in more than one place, doesn't always produce a pleasing design full on reusable abstractions.
 
 *TODO: I need to read to rest of Don't Repeat Yourself and Orthogonality sections of The Pragmatic Programmer again to make sure I'm right about this, but...*
 
 In fact, Andy Hunt and Dave Thomas who introduced the concept in [The Pragmatic Programmer][], which is an excellent book and I encourage those who haven't read it to do so, spend a long time explaining different types of duplication and the ways they can arise, but they don't offer any advice on how you should get rid of the duplication.
 
-What I want to draw attention to is the link between abstractions and duplication that Steve Smith talk's about.  Steve Smith, in his entry to the book [97 Things Every Programmer Should Know][], says:
+What I want to draw attention to is the link between abstractions and duplication that Steve Smith talks about.  Steve Smith, in his entry to the book [97 Things Every Programmer Should Know][], says:
 
 > The developer who learns to recognize duplication, and understands how to eliminate it through appropriate practice and proper abstraction, can produce much cleaner code than one who continuously infects the application with unnecessary repetition.
 
-Removing abstraction through appropriate practice  and proper abstraction.  It's this link between duplication and abstraction which I think holds the key to improving our designs.  One way our designs can improve is by replacing duplication with appropriate abstractions.
+Removing abstraction through appropriate practice and proper abstraction.  It's this link between duplication and abstraction which I think holds the key to improving our designs.  One way our designs can improve is by replacing duplication with appropriate abstractions.
 
 The hardest thing about this advice is there is no process you can follow to create the perfect abstraction, it really is were the art and creativity come in to computer programming and design.  The best guidance we have available are hueristics that describe what a good abstraction might look like, and others that indicate where we might be missing an abstraction.  Repeated code is an example of the latter.  It is a signal that we might be missing an abstraction.  If we find an abstraction that enables us to remove the duplication, we can replace the duplication with that abstraction.  However, if we naively remove the duplication, we may couple concepts together and reduce the reusability of our code.
 
 Removing duplication the right way
 ---
 
-Joe B Rainsberger, otherwise known as JBrains, has interesting video about finding abstractions in the episdoe [A Long Look Down the Road (paywall)][], part of his [The World's Best Intro to TDD][].  In the video he thinks out loud so you can really understand the thought process he goes through.
+Joe B Rainsberger, otherwise known as JBrains, has an interesting video about finding abstractions in the episdoe [A Long Look Down the Road (paywall)][], part of his [The World's Best Intro to TDD][].  In the video he thinks out loud so you can really understand the thought process he goes through which I have made an effort to document below.
 
 The class that is the focus of the video, `ConsoleDisplay`, is so small that you might think that there is nothing to refactor in it, or that it doesn't need refactoring, or at least is not warrented given his progress with the project in the series.  You may be right about the latter, as Joe himself conceeds, but it is an interesting exercise none-the-less.
+
+`ConsoleDisplay` is a simple class that formats a number of different messages that a till/checkout might require.  The state we start with is as such:
 
 ```java
 public class ConsoleDisplay {
@@ -45,7 +47,7 @@ public class ConsoleDisplay {
 }
 ```
 
-The first thing Joe looks at is the similarity between the methods.  Three of them are using `System.out.println`.  One of them passes a string literal, one of them passes the output of `String.format` and one of them passes the output of `formatPrice` which itself returns the output of `String.format`.  He notices that if he inlines the `formatPrice` method (checking first that it isn't used any where else as it's public) he can make the three 'display' methods more similar.
+Joe starts to look at similarities and differenes between the methods.  There are three calls to `System.out.println` but they are all passed differing arguments.  The call in `displayEmptyBarcodeMessage` passes a string literal, the call in `displayProductNotFoundMessage` passes the output of `String.format`, whilst the call in `displayPrice` passes the output of `formatPrice` which itself returns the output of `String.format`.  He notices that if he inlines the `formatPrice` method (checking first that it isn't used any where else as it's public) he can make the three 'display' methods more similar.
 
 ```java
 public class ConsoleDisplay {
@@ -65,7 +67,7 @@ public class ConsoleDisplay {
 }
 ```
 
-You can more easily see that two of the methods send the output of `String.format` to `System.out.println` and one sends a string to `System.out.println`.  If fact we can make all three look more similar by wrapping the string passed to `System.out.println` in `displayEmptyBarcodeMessage` in `String.Format` as passing a string with no arguments returns the original string.
+Now it is easier to see that two of the methods send the output of `String.format` to `System.out.println` and one sends a string to `System.out.println`.  If fact, Joe notices it is possible to make all three look more similar by wrapping the string passed to `System.out.println` in `displayEmptyBarcodeMessage` in `String.Format` as passing a string with no arguments returns the original string.
 
 ```java
 public class ConsoleDisplay {
@@ -88,9 +90,9 @@ public class ConsoleDisplay {
 
 Now all three methods look much more similar.  Each call `System.out.println` passing the output of `String.format`.
 
-Highlighting the differences and similarities in your code can help you feel your way towards an abstraction.  An abstraction is the synthesis of a set of behaviours to their common core so by being able to change the structure the methods similarly means that you might be on the way to exposing an abstraction.  Duplication of structure is another, perhaps slightly stronger, signal that you've got an abstraction trying to get out.
+Highlighting the differences and similarities in your code can help you feel your way towards an abstraction.  An abstraction is the synthesis of a set of behaviours to their common core so being able to make the structure of these methods similar means we might be on the way to exposing an abstraction.  Duplication of structure is another, perhaps slightly stronger, signal that you've got an abstraction trying to get out.
 
-Mechanically you could say that creating abstractions is the process of separating that which is similar from that which is different.
+Mechanically, you could say that creating abstractions is the process of separating that which is similar from that which is different.
 
 Joe then notices that he can make the differences stand out more if he changes the formatting of the code within the methods, by placing all that is similar within the methods on one line, and all that is different on the next.
 
@@ -115,7 +117,7 @@ public class ConsoleDisplay {
 
 Now the similarity `System.out.printlin(String.format` is all on one line in each method and the difference, the format of the string and the args, are all on the following line.
 
-It is interesting to hear Joe talk through what he's thinking.  As he highlights himself in post-production, as he talks through his ideas various names come and go, but some stick around as the concepts coalesce in this mind.
+It is interesting to hear Joe talk through what he's thinking at this point in the refactoring.  In a voice over added as he himself watched his own video, he notices how ideas various names come and go, but some stick around as the concepts coalesce in this mind.  He has begun to use words such as format, render, and template.  The names he talks about aren't apparent in the code yet but they give a clue to the abstractions that may be hiding there.
 
 I'm going to deviate a little from Joe's video here, but we'll end up in the same place.  
 
@@ -170,7 +172,7 @@ public class ConsoleDisplay {
 }
 ```
 
-The `render` and `format` methods we've extracted are actually quite generic and you could imagine that they may be useful elsewhere in the system.  If they were found to be useful they could be moved to separate classes the interfaces of which could get injected in to the `ConsoleDisplay` as dependencies.
+The `render` and `format` methods we've extracted are actually quite generic and you could imagine that they may be useful elsewhere in the system.  If they were found to be useful they could be moved to separate classes the interfaces of which could get injected in to the `ConsoleDisplay` as dependencies, like so:
 
 ```java
 public class ConsoleDisplay {
@@ -208,9 +210,9 @@ public class StringFormatter : Formatter {
 }
 ```
 
-At this point we've created two new abstractions, the Renderer and the Formatter and they, along with the ConsoleDisplay can be tested independently.  In fact, having to test the formatting and the rendering together was a signal at the beginning that we missed, we can see in hindsight.
+At this point we've created two new abstractions, the `Renderer` and the `Formatter` and they, along with the `ConsoleDisplay` can be tested independently.  In fact, having to test the formatting and the rendering together was a signal at the beginning that we missed, we can see in hindsight.
 
-This design lets us easily add a new method for templating if required and would allow us to swap in a new method of rendering, such as rendering to an LCD screen, if required.
+This design lets us easily add a new method for templating if required and would allow us to swap in a new method of rendering, such as rendering to an LCD screen (this is for a till/checkout remember!), if required.
 
 This is, I believe, what people mean when they talk about removing duplication.  The duplication has been removed by adding two new abstractions.
 
@@ -242,7 +244,7 @@ public class ConsoleDisplay {
 }
 ```
 
-One thing we could have done is to extract the `System.out.println` and the `String.format` together.  They are used together in each case we have seen so far, so perhaps they belong together?  If we did so, we might end up with something like the following.
+One thing we could have done is to extract the `System.out.println` and the `String.format` together.  They are used together in each case we have seen so far, so perhaps they belong together?  If we did so we might end up with something like the following:
 
 ```java
 public class ConsoleDisplay {
@@ -294,18 +296,18 @@ public class ConsoleRendererStringFormatter : RendererFormatter {
 }
 ```
 
-This refactoring removes the same amount of duplication as the first.  You might even think this to be better, as there are fewer classes created.  Unfortunately it hasn't really solved any of our other problems.  The rendering and the formatting cannot be tested independently and it is harder to swap either one out because one is tied to the other.  The name of the new interface `RendererFormatter` and the new class that implements the interface `ConsoleRendererStringFormatter` are both compound names which describe doing more than one thing, signalling perhaps that this abstraction is in violation of [The Single Responsibility Principle][].
+This refactoring removes the same amount of duplication as the first.  You might even think this to be better, as there are fewer classes created.  Unfortunately it hasn't really solved any of our other problems.  The rendering and the formatting cannot be tested independently and it is harder to swap either one out because one is tied to the other.  In other words, we have coupled rendering together with formatting.  The name of the new interface `RendererFormatter` and the new class that implements the interface `ConsoleRendererStringFormatter` are both compound names which describe doing more than one thing, signalling perhaps that this abstraction is in violation of [The Single Responsibility Principle][].
 
 Conclusion
 ---
 
-Perhaps this isn't the greatest example.  Perhaps the second refactoring is better than the first given what we know about the system right now, i.e., not very much.  We don't know if we'll need a different formatter, and we don't know if we need to render to a difference device.  Perhaps this would be a good first step, until such time as we do need to format and render independently when we could refactor further.  Whether or not this was a good or a bad descision will only become apparent in due course and will depend on the changes to the system that are required.  One thing is for sure - this design has coupled the concepts of rendering and formatting together which adds an element of risk to the design.
+This may not be the greatest example.  Perhaps the second refactoring is better than the first given what we know about the system right now, i.e., not very much.  We don't yet know that rendering and formatting will ever need to be changed independently because we've never received that requirement.  Perhaps the second refactoring would be a good first step, until such time as we do need to format and render independently when we could refactor further.  Whether or not this was a good or a bad descision will only become apparent in due course and will depend on the changes to the system that are required.
 
-However, I still think the examples give a good insight in to the sensitivity to conceptually different things within the code that is needed by a developer to enable the design to emerge.
+However, I still think the examples give a good insight in to the sensitivity to conceptually different things within the code that is needed by a developer to enable abstractions to emerge.
 
-I have also noticed this kind of coupling in my own code when I've been moving shared behaviour up to a base class (almost always a bad idea!).  More than once I've noticed I've moved code shared between two controllers to a base controller class but the code I moved shared very little in common conceptually and yet I've coupled them together inside my new abstraction, the base controller class.
+This kind of sensitivity to the concepts in the code, and the level of abstraction they are is also critical when extracting methods in the same way as it is when extracting classes.  Methods are also an abstraction.  Even if the extracted methods don't get moved to classes of their own, it is still important that the methods themselves are coherant.
 
-This kind of sensitivity to the concepts in the code, and the level of abstraction they are is also critical when extracting methods in the same way as it is when extracting classes.  Methods are also an abstraction.  Even if the extracted methods don't get moved to classes of their own, it is still important that the method itself is meaningful on its own.
+In the real world I have noticed the kind of coupling introduced in the name of eliviating duplication in my own code when I've been moving shared behaviour up to a base class.  More than once I've noticed I've moved code shared between two controllers to a base controller class but the code I moved shared very little in common conceptually and yet I've coupled them together inside my new abstraction, the base controller class.  A better way of removing the duplication might have been to create seperate classes injected in to the controllers as dependencies.
 
 To do
 ---
@@ -316,4 +318,3 @@ To do
 [A Long Look Down the Road (paywall)]: http://online-training.jbrains.ca/courses/wbitdd-01/lectures/140743
 [The World's Best Intro to TDD]: http://www.jbrains.ca/training/the-worlds-best-introduction-to-test-driven-development/
 [97 Things Every Programmer Should Know]: http://programmer.97things.oreilly.com/wiki/index.php/Contributions_Appearing_in_the_Book
-[The Single Responsibility Principle]: https://8thlight.com/blog/uncle-bob/2014/05/08/SingleReponsibilityPrinciple.html
